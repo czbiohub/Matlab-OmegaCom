@@ -24,14 +24,13 @@ classdef OmegaTempController < handle
         % Register addresses
         
         % Current temp sensor reading
-        TEMP_ADDR = struct('address', 528, 'n_reg', 2, 'type', 'single');
+        TEMP_ADDR = py.int(528);
         
         % Current setpoint
-        SETPOINT_ADDR = struct('address', 544, 'n_reg', 2, 'type',...
-            'single');
+        SETPOINT_ADDR = py.int(738);
         
         % Current run mode
-        RUNMODE_ADDR = struct('address', 576, 'n_reg', 1, 'type', 'uint16');
+        RUNMODE_ADDR = py.int(576);
         
     end
     
@@ -68,9 +67,7 @@ classdef OmegaTempController < handle
         function temp = getActualTemperature(this)
             
             if ~this.virtual
-                resp = read(this.controller,'holdingregs',...
-                    this.TEMP_ADDR.address, this.TEMP_ADDR.n_reg,...
-                    1, this.TEMP_ADDR.type);
+                temp = this.controller.read_float(this.TEMP_ADDR);
                 
 %                 if ~isempty(resp) && (numel(resp) == 9)
 %                     temp = str2double(resp(5:end))/10;
@@ -91,9 +88,7 @@ classdef OmegaTempController < handle
         function temp = getTargetTemperature(this)
             
             if ~this.virtual
-                resp = read(this.controller,'holdingregs',...
-                    this.SETPOINT_ADDR.address,...
-                    this.SETPOINT_ADDR.n_reg, 1, this.SETPOINT_ADDR.type);
+                temp = this.controller.read_float(this.SETPOINT_ADDR);
                 
 %                 if ~isempty(resp) && (numel(resp) == 9)
 %                     temp = str2double(resp(5:end))/10;
@@ -115,9 +110,8 @@ classdef OmegaTempController < handle
             if ~this.virtual
                 % Sets target temperature and starts control in the chosen
                 % block
-                write(this.controller, 'holdingregs',...
-                    this.SETPOINT_ADDR.address,...
-                    temp, 1, this.SETPOINT_ADDR.type);
+                this.controller.write_float(this.SETPOINT_ADDR,...
+                    py.float(temp))
             
             % In virtual mode, save the target temp
             else
@@ -133,9 +127,8 @@ classdef OmegaTempController < handle
             if ~this.virtual
                 % Start controlling temperature in the chosen block
                 % Block will go to existing target temperature
-                write(this.controller, 'holdingregs',...
-                    this.RUNMODE_ADDR.address,...
-                    temp, 6, this.RUNMODE_ADDR.type);
+                this.controller.write_register(this.RUNMODE_ADDR,...
+                    py.int(6))
                 
             end
         end
@@ -145,9 +138,8 @@ classdef OmegaTempController < handle
             
             if ~this.virtual
                 % Stop controlling temperature in the chosen block
-                write(this.controller, 'holdingregs',...
-                    this.RUNMODE_ADDR.address,...
-                    temp, 1, this.RUNMODE_ADDR.type);
+                this.controller.write_register(this.RUNMODE_ADDR,...
+                    py.int(1))
             end
         end
         
@@ -209,7 +201,8 @@ classdef OmegaTempController < handle
             this.com_port = com_port;
             
             try
-                this.controller = modbus('serialrtu', this.com_port);
+                this.controller =...
+                    py.minimalmodbus.Instrument(this.com_port, py.int(1));
             
             catch
                 
