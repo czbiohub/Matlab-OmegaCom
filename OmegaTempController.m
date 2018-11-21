@@ -64,7 +64,7 @@ classdef OmegaTempController < handle
         
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        function temp = getActualTemperature(this)
+        function temp = getActualTemperature(this, block_id)
             
             if ~this.virtual
                 temp = this.controller.read_float(this.TEMP_ADDR);
@@ -85,7 +85,7 @@ classdef OmegaTempController < handle
         end
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        function temp = getTargetTemperature(this)
+        function temp = getTargetTemperature(this, block_id)
             
             if ~this.virtual
                 temp = this.controller.read_float(this.SETPOINT_ADDR);
@@ -122,7 +122,7 @@ classdef OmegaTempController < handle
         
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        function startControl(this)
+        function startControl(this, block_id)
             
             if ~this.virtual
                 % Start controlling temperature in the chosen block
