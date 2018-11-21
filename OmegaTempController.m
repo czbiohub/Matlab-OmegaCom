@@ -105,7 +105,7 @@ classdef OmegaTempController < handle
         end
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        function setTargetTemperature(this, temp)
+        function setTargetTemperature(this, temp_index, temp)
             
             if ~this.virtual
                 % Sets target temperature and starts control in the chosen
